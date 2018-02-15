@@ -16,3 +16,12 @@ Flags:
   -t, --timeout=3                Alertmanager connection timeout
       --version                  Show application version.
 ```
+
+# Example
+```
+$ am-silence -u http://alertmanager.example.com -l job=mysql,instance=10.200.0.102 -m add
+Adding silence [creator: auto-silencer, comment: auto-silencer, start: 2018-02-15T20:42:17Z, end: 2018-02-15T22:42:17Z]
+
+$ am-silence -u http://alertmanager.example.com -l job=mysql,instance=10.200.0.102 -m delete
+Deleting silence [creator: auto-silencer, comment: auto-silencer, start: 2018-02-15T20:42:17.961780991Z, end: 2018-02-15T22:42:17Z]
+```
