@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	ver string = "0.1"
+	ver string = "0.11"
 	silencesURL = "/api/v1/silences"
 	silenceURL = "/api/v1/silence"
 )
