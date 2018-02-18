@@ -3,11 +3,11 @@
 Alertmanager add/delete silences
 
 ```
-usage: am-silence --labels=LABELS [<flags>]
+usage: am-silence [<flags>]
 
 Flags:
       --help                     Show context-sensitive help (also try --help-long and --help-man).
-  -m, --mode="add"               work mode: add/delete silence
+  -m, --mode="show"              work mode: add/delete/show silence
       --silence-period=7200      default period for silenced alerts in seconds
   -l, --labels=LABELS            comma separated silence matching labels, eg. key1=value1,key2=value2
   -c, --creator="auto-silencer"  creator of the silence
