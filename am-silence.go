@@ -20,9 +20,9 @@ const (
 )
 
 var (
-	mode = kingpin.Flag("mode", "work mode: add/delete silence").Default("add").Short('m').String()
+	mode = kingpin.Flag("mode", "work mode: add/delete/show silence").Default("show").Short('m').String()
 	silencePeriod = kingpin.Flag("silence-period", "default period for silenced alerts in seconds").Default("7200").Int()
-	labels = kingpin.Flag("labels", "comma separated silence matching labels, eg. key1=value1,key2=value2").Required().Short('l').String()
+	labels = kingpin.Flag("labels", "comma separated silence matching labels, eg. key1=value1,key2=value2").Short('l').String()
 	creator = kingpin.Flag("creator", "creator of the silence").Default("auto-silencer").Short('c').String()
 	comment = kingpin.Flag("comment", "comment attached to the silence").Default("auto-silencer").Short('C').String()
 	amURL = kingpin.Flag("URL", "Alertmanager URL").Default("http://127.0.0.1").Short('u').String()
@@ -114,7 +114,9 @@ func httpGetWithFilter(targetURL, filterData string, result chan<- Msg) {
 	}
 
 	parameters := url.Values{}
-	parameters.Add("filter", filterData)
+	if filterData != "" {
+		parameters.Add("filter", filterData)
+	}
 	URL.RawQuery = parameters.Encode()
 
 
@@ -360,17 +362,43 @@ func getSilenceIDToDelete(amURL string, timeout int, labels string) (map[string]
 
 }
 
+func printSilences(amURL string, timeout int, labels string) error {
+	silences, err := getSilencesFromAM(amURL, timeout, labels)
+	if err != nil {
+		return err
+	}
+
+	for _, silence := range silences {
+		var matchers []string
+		for _, matcher := range silence.Matchers {
+			matchers = append(matchers, matcher.Name + "=" + matcher.Value)
+		}
+		fmt.Printf("ID: %s, creator: %s, comment: %s, start: %s, end: %s, labels: %s\n", silence.ID, silence.CreatedBy, silence.Comment, silence.StartsAt, silence.EndsAt, strings.Join(matchers, ","))
+	}
+
+	return nil
+}
+
 func process(amURL string, timeout int, mode, labels string, silencePeriod int, creator, comment string) error {
-	if mode == "add" {
+	switch mode {
+	case "add":
+		if labels == "" {
+			return errors.New("Parameter labels cannot be empty in mode: add")
+		}
 		if err := addSilence(amURL, timeout, silencePeriod, labels, creator, comment); err != nil {
 			return err
 		}
-	} else if mode =="delete" {
+	case "delete":
+		if labels == "" {
+			return errors.New("Parameter labels cannot be empty in mode: delete")
+		}
 		if err := deleteSilences(amURL, timeout, labels); err != nil {
 			return err
 		}
-	} else {
-		return errors.New("Unrecognized mode")
+	case "show":
+		printSilences(amURL, timeout, labels)
+	default:
+		return errors.New("Unrecognized mode parameter")
 	}
 
 	return nil
