@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	ver string = "0.11"
+	ver string = "0.12"
 	silencesURL = "/api/v1/silences"
 	silenceURL = "/api/v1/silence"
 )
@@ -373,7 +373,14 @@ func printSilences(amURL string, timeout int, labels string) error {
 		for _, matcher := range silence.Matchers {
 			matchers = append(matchers, matcher.Name + "=" + matcher.Value)
 		}
-		fmt.Printf("ID: %s, creator: %s, comment: %s, start: %s, end: %s, labels: %s\n", silence.ID, silence.CreatedBy, silence.Comment, silence.StartsAt, silence.EndsAt, strings.Join(matchers, ","))
+		fmt.Printf("ID: %s, creator: %s, comment: %s, start: %s, end: %s, labels: %s\n",
+			silence.ID,
+			silence.CreatedBy,
+			silence.Comment,
+			silence.StartsAt,
+			silence.EndsAt,
+			strings.Join(matchers, ","),
+		)
 	}
 
 	return nil
